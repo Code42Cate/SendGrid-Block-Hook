@@ -9,14 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/natefinch/lumberjack.v2"
-
-	"github.com/amoghe/distillog"
 	"github.com/bwmarrin/discordgo"
 )
 
 var (
-	logger         distillog.Logger
 	discordSession *discordgo.Session
 	config         *Config
 )
@@ -47,9 +43,9 @@ func sendMessage(block Block) {
 	message := fmt.Sprintf("Failed to sent mail:\nCreated at: %d\nEmail: %s \nReason: %s\nStatus: %s\n", block.Created, block.Email, block.Reason, block.Status)
 	_, err := discordSession.ChannelMessageSend(config.DiscordChannelID, message)
 	if err != nil {
-		logger.Errorf("Discord Error: %s", err.Error())
+		fmt.Printf("Discord Error: %s", err.Error())
 	} else {
-		logger.Infof("Successfully send message: %s", strings.ReplaceAll(message, "\n", ";"))
+		fmt.Printf("Successfully send message: %s", strings.ReplaceAll(message, "\n", ";"))
 	}
 
 }
@@ -62,7 +58,7 @@ func checkBlocks(blocks []Block) {
 			config.LastTimestamp = block.Created + 1 // + 1 or we would get the last one all the time
 			err := saveLastTimestamp(config.LastTimestamp)
 			if err != nil {
-				logger.Errorf("Failed to save last timestamp: %s", err.Error())
+				fmt.Printf("Failed to save last timestamp: %s", err.Error())
 			}
 		}
 	}
@@ -76,14 +72,14 @@ func getBlocks() {
 	req.Header.Set("Authorization", "Bearer "+config.SendGridToken)
 
 	if err != nil {
-		logger.Errorf("Failed to build Request: %s", err)
+		fmt.Printf("Failed to build Request: %s", err)
 		return
 	}
 
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		logger.Errorf("HTTP Call failed: %s", err.Error())
+		fmt.Printf("HTTP Call failed: %s", err.Error())
 		return
 	}
 	defer res.Body.Close()
@@ -92,7 +88,7 @@ func getBlocks() {
 	var blocks []Block
 	err = decoder.Decode(&blocks)
 	if err != nil {
-		logger.Errorf("Failed parsing json: %T\n%s\n%#v\n", err, err, err)
+		fmt.Printf("Failed parsing json: %T\n%s\n%#v\n", err, err, err)
 	} else {
 		checkBlocks(blocks)
 	}
@@ -130,29 +126,17 @@ func parseConfig() error {
 
 func main() {
 
-	lumberjackHandle := &lumberjack.Logger{
-		Filename:   "./log.txt",
-		MaxSize:    500, // megabytes
-		MaxBackups: 3,
-		MaxAge:     30, // days
-	}
-
-	logger = distillog.NewStreamLogger("tag", lumberjackHandle)
-	distillog.SetOutput(lumberjackHandle)
-	logger.Infoln("Starting thingy")
 	err := parseConfig()
 	if err != nil {
-		logger.Errorf("Failed to parse config: %s", err.Error())
 		panic(err)
 	}
-	logger.Infof("Successfully parsed config file: %s", CONFIGPATH)
+	fmt.Printf("Successfully parsed config file: %s", CONFIGPATH)
 
 	discordSession, err = discordgo.New("Bot " + config.DiscordToken)
 	if err != nil {
-		logger.Errorf("Failed to create new Discord bot: %s", err.Error())
 		panic(err)
 	}
-	logger.Infoln("Successfully started Discord bot")
+	fmt.Println("Successfully started Discord bot")
 
 	// Loop all da time!
 	for range time.Tick(time.Duration(config.Interval) * time.Second) {
