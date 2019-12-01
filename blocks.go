@@ -43,9 +43,9 @@ func sendMessage(block Block) {
 	message := fmt.Sprintf("Failed to sent mail:\nCreated at: %d\nEmail: %s \nReason: %s\nStatus: %s\n", block.Created, block.Email, block.Reason, block.Status)
 	_, err := discordSession.ChannelMessageSend(config.DiscordChannelID, message)
 	if err != nil {
-		fmt.Printf("Discord Error: %s", err.Error())
+		fmt.Printf("Discord Error: %s\n", err.Error())
 	} else {
-		fmt.Printf("Successfully send message: %s", strings.ReplaceAll(message, "\n", ";"))
+		fmt.Printf("Successfully send message: %s\n", strings.ReplaceAll(message, "\n", ";"))
 	}
 
 }
@@ -58,7 +58,7 @@ func checkBlocks(blocks []Block) {
 			config.LastTimestamp = block.Created + 1 // + 1 or we would get the last one all the time
 			err := saveLastTimestamp(config.LastTimestamp)
 			if err != nil {
-				fmt.Printf("Failed to save last timestamp: %s", err.Error())
+				fmt.Printf("Failed to save last timestamp: %s\n", err.Error())
 			}
 		}
 	}
@@ -72,14 +72,14 @@ func getBlocks() {
 	req.Header.Set("Authorization", "Bearer "+config.SendGridToken)
 
 	if err != nil {
-		fmt.Printf("Failed to build Request: %s", err)
+		fmt.Printf("Failed to build Request: %s\n", err)
 		return
 	}
 
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("HTTP Call failed: %s", err.Error())
+		fmt.Printf("HTTP Call failed: %s\n", err.Error())
 		return
 	}
 	defer res.Body.Close()
@@ -130,7 +130,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Successfully parsed config file: %s", CONFIGPATH)
+	fmt.Printf("Successfully parsed config file: %s\n", CONFIGPATH)
 
 	discordSession, err = discordgo.New("Bot " + config.DiscordToken)
 	if err != nil {
