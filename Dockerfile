@@ -14,4 +14,3 @@ ENV LAST_TIMESTAMP=-1
 
 EXPOSE 8080
 ENTRYPOINT [ "./main"]
-# docker push gcr.io/nova-cloud-260119/go-website
