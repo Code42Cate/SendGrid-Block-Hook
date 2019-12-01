@@ -1,0 +1,23 @@
+name: Docker
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Docker Build
+        uses: benjlevesque/actions-docker-gcr/build@master
+        env:
+          IMAGE: ${{ secrets.GCLOUD_REGISTRY }}
+          GCLOUD_REGISTRY: gcr.io
+
+      - name: Docker Push
+        uses: benjlevesque/actions-docker-gcr/push@master
+        env:
+          IMAGE: ${{ secrets.GCLOUD_REGISTRY }}
+          GCLOUD_REGISTRY: gcr.io
+          GCLOUD_SERVICE_ACCOUNT_KEY: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
