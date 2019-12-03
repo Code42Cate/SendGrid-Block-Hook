@@ -46,8 +46,8 @@ func sendMessage(block Block) {
 // Iterate through blocks, send your log messages and save new latest timestamp
 func checkBlocks(blocks []Block) {
 	for _, block := range blocks {
+		sendMessage(block)
 		if block.Created > config.LastTimestamp {
-			sendMessage(block)
 			config.LastTimestamp = block.Created + 1 // + 1 or we would get the last one all the time
 		}
 	}
